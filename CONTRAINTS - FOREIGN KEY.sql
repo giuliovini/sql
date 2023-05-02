@@ -1,0 +1,128 @@
+/*
+ DROP TABLE IF EXISTS CURSOS,ALUNOS;
+
+ TRUNCATE CURSOS cascade;
+ TRUNCATE ALUNOS cascade;
+
+ ALTER SEQUENCE alunos_id_seq RESTART WITH 1;
+*/
+
+--------------------------------------------------------------------------------
+-- FOREIGN KEY
+--------------------------------------------------------------------------------
+
+-- #SINTAXE 01:
+CREATE TABLE CURSOS (
+  ID SERIAL PRIMARY KEY,
+  CODIGO INTEGER NOT NULL,
+  DESCRICAO VARCHAR NOT NULL
+);
+
+CREATE TABLE ALUNOS (
+  ID SERIAL PRIMARY KEY,
+  NOME VARCHAR NOT NULL,
+  IDCURSO INTEGER
+);
+
+--Criação da constraint FOREING KEY
+ALTER TABLE ALUNOS 	ADD CONSTRAINT FK_ALUNOS_CURSOS 
+FOREIGN KEY (IDCURSO) REFERENCES CURSOS(ID); 
+
+
+-- SINTAXE 02: 
+--		Direto no CREATE TABLE
+-- 		Muita atenção pois se a tabela referenciada ainda não existir, o POSTGRESQL retornará erro, 
+-- 		RECOMENDÁVEL sempre criar as FOREIGN KEY's após a criação das estruturas de tabelas de um BD, 
+--		com o uso do ALTER TABLE
+
+DROP TABLE IF EXISTS CURSOS,ALUNOS;
+
+CREATE TABLE CURSOS (
+  ID SERIAL PRIMARY KEY,
+  CODIGO INTEGER NOT NULL,
+  DESCRICAO VARCHAR NOT NULL
+);
+
+CREATE TABLE ALUNOS (
+  ID SERIAL PRIMARY KEY,
+  NOME VARCHAR NOT NULL,
+  IDCURSO INTEGER,
+  CONSTRAINT FK_ALUNOS_CURSOS FOREIGN KEY (IDCURSO) REFERENCES CURSOS(ID)
+);
+
+
+
+--Inserindo dados para tabela CURSOS:
+INSERT INTO CURSOS (CODIGO, DESCRICAO) VALUES (123, 'Curso de Programação em Python');
+INSERT INTO CURSOS (CODIGO, DESCRICAO) VALUES (456, 'Curso de Design Gráfico');
+INSERT INTO CURSOS (CODIGO, DESCRICAO) VALUES (789, 'Curso de Marketing Digital');
+
+--Inserindo dados para tabela ALUNOS:
+INSERT INTO ALUNOS (NOME, IDCURSO) VALUES ('João Silva',3);
+INSERT INTO ALUNOS (NOME, IDCURSO) VALUES ('Maria Santos',3);
+INSERT INTO ALUNOS (NOME, IDCURSO) VALUES ('Pedro Souza', 2);
+INSERT INTO ALUNOS (NOME, IDCURSO) VALUES ('Ana Paula Pereira', 1);
+
+--VERIFICANDO DADOS DAS TABELAS NOVAS
+SELECT * FROM ALUNOS;
+SELECT * FROM CURSOS;
+
+----------------------
+--	CONSULTANDO SEM JOIN
+--	#sintaxe 01
+SELECT 
+	A.NOME,
+	A.IDCURSO AS IDCURSO_ALUNO,
+	C.CODIGO,
+	C.DESCRICAO
+FROM 
+	ALUNOS AS A, 
+	CURSOS AS C
+WHERE 
+	A.IDCURSO = C.ID
+
+-- #sintaxe 02
+SELECT 
+	ALUNOS.NOME,
+	ALUNOS.IDCURSO AS IDCURSO_ALUNO,
+	CURSOS.CODIGO,
+	CURSOS.DESCRICAO
+FROM 
+	ALUNOS, 
+	CURSOS
+WHERE 
+	ALUNOS.IDCURSO = CURSOS.ID
+
+
+-- CONSULTANDO ATRAVÉS DO JOIN
+-- SELECT COM JOIN
+-- Responsável por unir os dados correspondentes nas duas tabelas que são iguais,
+--	Retornando os registros ou dados referente aos registros que contem os mesmo valor,
+--	no caso do exemplo IDCURSO da TABELA [ALUNO] = ID da TABELA [CURSOS]
+
+SELECT 
+	A.NOME,
+	A.IDCURSO AS IDCURSO_ALUNO,
+	C.CODIGO,
+	C.DESCRICAO
+FROM 
+	ALUNOS AS A
+INNER JOIN
+	CURSOS AS C
+ON
+	A.IDCURSO = C.ID
+
+-- OU TAMBEM  sem "renomear" (Apelidos) as TABELAS
+
+SELECT 
+	ALUNOS.NOME,
+	ALUNOS.IDCURSO AS IDCURSO_ALUNO,
+	CURSOS.CODIGO,
+	CURSOS.DESCRICAO
+FROM 
+	ALUNOS
+INNER JOIN
+	CURSOS 
+ON
+	ALUNOS.IDCURSO = CURSOS.ID
+
